@@ -16,4 +16,10 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
+  Image-Build:
+    runs-on:
+      run: |
+          envsubst < .env.local > .env
+          echo "Generated .env file"
+          cat .env
 
