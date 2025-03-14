@@ -58,7 +58,7 @@ jobs:
         run: |
           cat $GITHUB_ENV
           cat ${{ github.env }}
-          echo "$VARS_JSON"
+          echo "$VARS_JSON" | jq -r 'keys[] as $k | "\($k)=\(.[$k])"' >> $GITHUB_ENV
           echo ${{ vars.ENV_WORDS }}
           envsubst < .env.local > .env
           echo "Generated .env file"
@@ -77,6 +77,7 @@ jobs:
       - name: Check definition
         run: |
           cat ${{ steps.task-def.outputs.task-definition }}
+          printenv
       
       # - name: Deploy Amazon ECS task definition
       #   uses: aws-actions/amazon-ecs-deploy-task-definition@v2
