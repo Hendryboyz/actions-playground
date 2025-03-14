@@ -20,6 +20,8 @@ jobs:
     name: Build image
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
       - name: Environment variables substitution
         run: |
           envsubst < .env.local > .env
