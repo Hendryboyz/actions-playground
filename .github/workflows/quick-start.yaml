@@ -28,9 +28,24 @@ jobs:
         uses: actions/checkout@v3
         
       - name: Environment variables substitution
+        id: build-image
         run: |
           echo ${{ vars.ENV_WORDS }}
           envsubst < .env.local > .env
           echo "Generated .env file"
           cat .env
+          echo "image=nginx:stable-alpine3.20-perl" >> $GITHUB_OUTPUT
+      
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: tasks/${{ env.env_var }}/backend.json
+          container-name: backend-app
+          image: ${{ steps.build-image.outputs.image }}
+      
+      - name: Check definition
+        run: |
+          cat ${{ steps.task-def.outputs.task-definition }}
+
 
