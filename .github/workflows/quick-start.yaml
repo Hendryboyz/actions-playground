@@ -19,6 +19,7 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
+
   Image-Build:
     name: Build image
     runs-on: ubuntu-latest
@@ -26,10 +27,35 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v2
+      #   with:
+      #     aws-region: ${{ var.AWS_REGION }}
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+
+      
+      # - name: Upload configs
+      #   uses: shallwefootball/s3-upload-action@master
+      #   with:
+      #     aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+      #     aws_bucket: ${{ var.CONFIGURATION_BUCKET }}
+      #     source_dir: 'dirname'
+      
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
         
       - name: Environment variables substitution
         id: build-image
+        # env:
+        #   REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
+          cat $GITHUB_ENV
+          cat ${{ github.env }}
           echo ${{ vars.ENV_WORDS }}
           envsubst < .env.local > .env
           echo "Generated .env file"
@@ -40,12 +66,20 @@ jobs:
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: tasks/${{ env.env_var }}/backend.json
+          task-definition: deployments/tasks/${{ env.env_var }}/backend.json
           container-name: backend-app
           image: ${{ steps.build-image.outputs.image }}
       
       - name: Check definition
         run: |
           cat ${{ steps.task-def.outputs.task-definition }}
+      
+      # - name: Deploy Amazon ECS task definition
+      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      #   with:
+      #     task-definition: ${{ steps.task-def.outputs.task-definition }}
+      #     service: ${{ var.ECS_SERVICE_NAME }}
+      #     cluster: ${{ var.ECS_CLUSTER_NAME }}
+      #     wait-for-service-stability: true
 
 
