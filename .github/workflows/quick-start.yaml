@@ -1,6 +1,9 @@
 name: GitHub Actions Demo
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on: [push]
+env:
+  # Setting an environment variable with the value of a configuration variable
+  env_var: dev
 jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
@@ -19,11 +22,14 @@ jobs:
   Image-Build:
     name: Build image
     runs-on: ubuntu-latest
+    environment: dev
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+        
       - name: Environment variables substitution
         run: |
+          echo ${{ vars.ENV_WORDS }}
           envsubst < .env.local > .env
           echo "Generated .env file"
           cat .env
