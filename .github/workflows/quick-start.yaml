@@ -51,7 +51,8 @@ jobs:
         
       - name: Environment variables substitution
         id: build-image
-        # env:
+        env:
+          REGISTRY: "I need a test string"
         #   REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           cat $GITHUB_ENV
@@ -60,6 +61,7 @@ jobs:
           envsubst < .env.local > .env
           echo "Generated .env file"
           cat .env
+          printenv
           echo "image=nginx:stable-alpine3.20-perl" >> $GITHUB_OUTPUT
       
       - name: Fill in the new image ID in the Amazon ECS task definition
